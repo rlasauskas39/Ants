@@ -1,0 +1,182 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Apr  9 13:42:57 2019
+
+@author: Josh Lasauskas
+"""
+#global imports
+import turtle as trt
+import random as rn
+
+#define step fuction
+def step(xi,yi,lx,ly,ux,uy):
+    import random as rn
+    r = rn.randint(1,4)
+    if r == 1:
+        if xi > lx:
+            xi = xi -1
+    elif r == 2:
+        if xi < ux:
+            xi = xi + 1
+    elif r == 3:
+        if yi > ly:
+            yi = yi - 1
+    elif r == 4:
+        if yi < uy:
+            yi = yi + 1
+    return xi,yi
+
+def duplicates(ilist,item):
+    return[z for z, n in enumerate(ilist) if n == item]
+
+def checkpath(parts,p):
+    best = len(parts)
+    num = parts[best-p]
+    return num
+
+#define ant finidng food function
+def findfood(antspot,xi,yi):
+    while(antspot != foodlocation):
+        xi,yi = step(xi,yi,lx,ly,ux,uy)
+        xlist.append(xi)
+        ylist.append(yi)
+        Scott.goto(xi,yi)
+        antspot = [[xi,yi]]
+
+#define ant going back to home function
+def backhome(stepsnum,antspot,homelocation,xi,yi,ant):
+    i = 1
+    p = 1
+    while(i < stepsnum):
+        print(i)
+        ant.pencolor('blue')
+        ant.goto(xlist[i],ylist[i])
+        xi = xlist[i]
+        yi = ylist[i]
+        antspot = [[xi,yi]]
+        xparts = duplicates(xlist,xi)
+        yparts = duplicates(ylist,yi)
+        xnum = checkpath(xparts,p)
+        ynum = checkpath(yparts,p)
+        if xnum >= ynum and ylist[ynum] == ylist[i]:
+            i = xnum
+        elif ynum > xnum and xlist[xnum] == xlist[i]:
+            i = ynum
+        elif xnum >= ynum and ylist[ynum] != ylist[i]:
+            p = p+1
+            continue
+        i = i+1
+        if(antspot == homelocation):      #need to find way to check if hits origin before end of list
+            i = stepsnum+1                  #make xflist of shortest path on the way back
+
+#define more ants going to food
+def tofood(stepsnum,ant):
+    i = 1
+    while(i < stepsnum):
+        ant.pencolor('red')
+        ant.goto(xlist[i],ylist[i])
+        i = i+1
+                #need home with food and make it diff color
+
+#set turtle window
+wn = trt.Screen()
+lx = -10
+ux = 10
+ly = -10
+uy = 10
+wn.setworldcoordinates(lx,ly,ux,uy)
+
+#ransdom generator
+rn.seed(41)
+
+#placing food
+foodlocation = [[2,4]]
+food = trt.Turtle()
+food.hideturtle()
+food.penup()
+xfood = 2
+yfood = 4
+
+for f in foodlocation:
+    x = f[0]
+    y = f[1]
+    food.goto(x,y)
+    food.pendown()
+    food.dot(size = 10)
+    food.penup()
+
+#placing home
+homelocation = [[0,0]]              #
+home = trt.Turtle()
+home.hideturtle()
+home.penup()
+
+for f in homelocation:
+    hx = f[0]                        #
+    hy = f[1]
+    home.goto(hx,hy)
+    food.pendown()
+    home.pencolor('blue')
+    home.dot(size = 15)
+    home.penup()
+
+#making first ant
+Scott = trt.Turtle()
+Scott.speed(3)
+
+#origin
+xi = 0
+yi = 0
+home = [[0,0]]
+
+#starting lists
+xlist = [xi]
+ylist = [yi]
+
+#variable for where the ant is at a given time
+antspot = [[xi,yi]]
+
+## Main
+ant = Scott
+#ant going out to find food
+GoScott = findfood(antspot,xi,yi)
+
+#getting total number of steps
+stepsnum = len(xlist)
+print('step ',stepsnum)
+
+#reversing lists to go backwards
+xlist.reverse()
+ylist.reverse()
+
+#once ant found food it goes back to origin
+backhome(stepsnum,antspot,homelocation,xi,yi,ant)
+
+#creating new ant
+Anthony = trt.Turtle()
+Anthony.speed(3)
+
+#setting name as variable for tofood function
+ant = Anthony
+
+#reversing the list to go from origin to food
+xlist.reverse()
+ylist.reverse()
+
+#sending first ant to food - anthony
+Spawn = tofood(stepsnum,ant)
+
+#changing name for another ant to use tofood function
+ant = Scott
+Spawn2 = tofood(stepsnum,ant)
+
+xlist.reverse()
+ylist.reverse()
+
+ant = Anthony
+backhome(stepsnum,antspot,homelocation,xi,yi,ant)
+
+ant = Scott
+backhome(stepsnum,antspot,homelocation,xi,yi,ant)
+
+wn.exitonclick()
